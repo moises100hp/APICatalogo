@@ -1,6 +1,5 @@
 ﻿using APICatalogo.Models;
 using APICatalogo.Repositories;
-using APICatalogo.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APICatalogo.Controllers

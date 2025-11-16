@@ -1,6 +1,7 @@
 ﻿using APICatalogo.DTO;
 using APICatalogo.DTOs.Mappings;
 using APICatalogo.Filters;
+using APICatalogo.Models;
 using APICatalogo.Pagination;
 using APICatalogo.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -73,7 +74,6 @@ namespace APICatalogo.Controllers
 
             var categoriasDTO = categorias.ToCategoriaDTOList();
 
-
             return Ok(categoriasDTO);
         }
 
@@ -84,8 +84,20 @@ namespace APICatalogo.Controllers
             var categorias = _unitOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
             if (categorias is null)
                 return NotFound("Categorias não encontradas!");
-            var categoriasDTO = categorias.ToCategoriaDTOList();
-            
+
+            return ObterCategorias(categorias);
+        }
+
+        [HttpGet("filter/nome/pagination")]
+        public ActionResult<IEnumerable<CategoriaDTO>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
+        {
+            var categoriasFiltradas = _unitOfWork.CategoriaRepository.GetCategoriasFiltadas(categoriasFiltro);
+
+            return ObterCategorias(categoriasFiltradas);
+        }
+
+        private ActionResult<IEnumerable<CategoriaDTO>> ObterCategorias(PagedList<Categoria> categorias)
+        {
             var metadata = new
             {
                 categorias.TotalCount,
@@ -96,7 +108,9 @@ namespace APICatalogo.Controllers
                 categorias.HasPrevious
             };
 
-            Response.Headers.Append("X-Pagination",JsonConvert.SerializeObject(metadata));
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+            var categoriasDTO = categorias.ToCategoriaDTOList();
+
             return Ok(categoriasDTO);
         }
 

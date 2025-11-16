@@ -1,6 +1,6 @@
 ﻿namespace APICatalogo.Pagination
 {
-    public class QueryStringParameters
+    public abstract class QueryStringParameters
     {
         const int maxPageSize = 50;
         public int PageNumber { get; set; } = 1;

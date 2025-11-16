@@ -2,6 +2,7 @@
 using APICatalogo.Models;
 using APICatalogo.Pagination;
 using APICatalogo.Repositories;
+using X.PagedList;
 
 namespace APICatalogo.Repository
 {
@@ -13,20 +14,23 @@ namespace APICatalogo.Repository
             
         }
 
-        public async Task<PagedList<Categoria>> GetCategoriasAsync(CategoriasParameters categoriasParameters)
+        public async Task<IPagedList<Categoria>> GetCategoriasAsync(CategoriasParameters categoriasParameters)
         {
             var categorias = await GetAllAsync();
 
             var categoriasOrdenadas = categorias.OrderBy(c => c.CategoriaId).AsQueryable();
 
-            var resultado = PagedList<Categoria>.ToPagedList(categoriasOrdenadas,
-                categoriasParameters.PageNumber,
+            //var resultado = PagedList<Categoria>.ToPagedList(categoriasOrdenadas,
+            //    categoriasParameters.PageNumber,
+            //    categoriasParameters.PageSize);
+
+            var resultado = await categoriasOrdenadas.ToPagedListAsync(categoriasParameters.PageNumber,
                 categoriasParameters.PageSize);
 
             return resultado;
         }
 
-        public async Task<PagedList<Categoria>> GetCategoriasFiltadasAsync(CategoriasFiltroNome categoriasParams)
+        public async Task<IPagedList<Categoria>> GetCategoriasFiltadasAsync(CategoriasFiltroNome categoriasParams)
         {
             var categorias = await GetAllAsync();
 
@@ -39,8 +43,10 @@ namespace APICatalogo.Repository
                     .Contains(categoriasParams.Nome.ToLower()));
             }
 
-            var categoriasFiltradas = PagedList<Categoria>.ToPagedList(categoriasQueryable, categoriasParams.PageNumber,
-                categoriasParams.PageSize);
+            //var categoriasFiltradas = PagedList<Categoria>.ToPagedList(categoriasQueryable, categoriasParams.PageNumber,
+            //    categoriasParams.PageSize);
+
+            var categoriasFiltradas = await categorias.ToPagedListAsync(categoriasParams.PageNumber, categoriasParams.PageSize);
 
             return categoriasFiltradas;
         }

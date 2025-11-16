@@ -1,5 +1,6 @@
 ﻿using APICatalogo.Models;
 using APICatalogo.Pagination;
+using X.PagedList;
 
 namespace APICatalogo.Repositories
 {
@@ -7,8 +8,8 @@ namespace APICatalogo.Repositories
     {
         Task<IEnumerable<Produto>> GetProdutosPorCategoriaAsync(int id);
         //IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters);
-        Task<PagedList<Produto>> GetProdutosAsync(ProdutosParameters produtosParameters);
+        Task<IPagedList<Produto>> GetProdutosAsync(ProdutosParameters produtosParameters);
 
-        Task<PagedList<Produto>> GetProdutosFiltroPrecoAsync(ProdutosFiltroPreco produtosFiltroPreco);
+        Task<IPagedList<Produto>> GetProdutosFiltroPrecoAsync(ProdutosFiltroPreco produtosFiltroPreco);
     }
 }

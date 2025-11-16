@@ -37,6 +37,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="7.3.1" />
+    <PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
   </ItemGroup>
 
 </Project>

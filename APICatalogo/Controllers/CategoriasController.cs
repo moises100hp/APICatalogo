@@ -62,26 +62,26 @@ namespace APICatalogo.Controllers
 
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get()
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync()
         {
             _logger.LogInformation(" ============================= GET api/categorias ======================");
 
             //Nunca retornar todos os registros. Limitar a quantidade de registros retornados com filtro.
-            var categorias = _unitOfWork.CategoriaRepository.GetAll();
+            var categorias = await _unitOfWork.CategoriaRepository.GetAllAsync();
 
             if (categorias is null)
                 return NotFound("Categorias não encontradas!");
 
-            var categoriasDTO = categorias.ToCategoriaDTOList();
+            var categoriasDTO =  categorias.ToCategoriaDTOList();
 
             return Ok(categoriasDTO);
         }
 
         [HttpGet("pagination")]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync([FromQuery] CategoriasParameters categoriasParameters)
         {
             _logger.LogInformation(" ============================= GET api/categorias/pagination ======================");
-            var categorias = _unitOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
+            var categorias = await _unitOfWork.CategoriaRepository.GetCategoriasAsync(categoriasParameters);
             if (categorias is null)
                 return NotFound("Categorias não encontradas!");
 
@@ -89,9 +89,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("filter/nome/pagination")]
-        public ActionResult<IEnumerable<CategoriaDTO>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
         {
-            var categoriasFiltradas = _unitOfWork.CategoriaRepository.GetCategoriasFiltadas(categoriasFiltro);
+            var categoriasFiltradas = await _unitOfWork.CategoriaRepository.GetCategoriasFiltadasAsync(categoriasFiltro);
 
             return ObterCategorias(categoriasFiltradas);
         }
@@ -115,11 +115,11 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
-        public ActionResult<CategoriaDTO> Get(int id)
+        public async Task<ActionResult<CategoriaDTO>> GetAsync(int id)
         {
             _logger.LogInformation($" ============================= GET api/categorias/{id} ======================");
 
-            var categoria = _unitOfWork.CategoriaRepository.Get(c => c.CategoriaId == id);
+            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == id);
 
             if (categoria is null)
             {
@@ -133,7 +133,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPost]
-        public ActionResult<CategoriaDTO> Post(CategoriaDTO categoriaDTO)
+        public async Task<ActionResult<CategoriaDTO>> PostAsync(CategoriaDTO categoriaDTO)
         {
             if (categoriaDTO == null)
             {
@@ -144,7 +144,7 @@ namespace APICatalogo.Controllers
             var categoria = categoriaDTO.ToCategoria();
 
             var categoriaCriada = _unitOfWork.CategoriaRepository.Create(categoria);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             var novaCategoriaDTO = categoriaCriada.ToCategoriaDTO();
 
@@ -153,7 +153,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPut]
-        public ActionResult<CategoriaDTO> Put(int id, CategoriaDTO categoriaDTO)
+        public async Task<ActionResult<CategoriaDTO>> PutAsync(int id, CategoriaDTO categoriaDTO)
         {
             if (id != categoriaDTO.CategoriaId)
             {
@@ -164,7 +164,7 @@ namespace APICatalogo.Controllers
             var categoria = categoriaDTO.ToCategoria();
 
             _unitOfWork.CategoriaRepository.Update(categoria);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             var categoriaAtualizadaDTO = categoria.ToCategoriaDTO();
 
@@ -172,9 +172,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult<CategoriaDTO> Delete(int id)
+        public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
-            var categoria = _unitOfWork.CategoriaRepository.Get(c => c.CategoriaId == id);
+            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == id);
 
             if (categoria is null)
             {
@@ -183,7 +183,7 @@ namespace APICatalogo.Controllers
             }
 
             var categoriaExcluida = _unitOfWork.CategoriaRepository.Delete(categoria);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             var categoriaDTO = categoriaExcluida.ToCategoriaDTO();
 

@@ -18,7 +18,7 @@ namespace APICatalogo.Models
         public string? Nome { get; set; }
 
         [Required]
-        [StringLength(10, ErrorMessage = "A descrição deve ter no máximo {1} caracteres")]
+        [StringLength(150, ErrorMessage = "A descrição deve ter no máximo {1} caracteres")]
         public string? Descricao { get; set; }
 
         [Required]

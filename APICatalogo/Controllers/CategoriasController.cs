@@ -4,6 +4,7 @@ using APICatalogo.Filters;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
 using APICatalogo.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using X.PagedList;
@@ -23,6 +24,8 @@ namespace APICatalogo.Controllers
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
+
+        #region Comentado
 
         //[HttpGet("LerArquivoConfiguracao")]
         //public string GetValores()
@@ -60,7 +63,9 @@ namespace APICatalogo.Controllers
         //    //Nunca retornar todos os registros. Limitar a quantidade de registros retornados com filtro.
         //    return _context.Categorias.Include(p => p.Produtos).Where(c => c.CategoriaId <= 5).ToList();
         //}
+        #endregion
 
+        [Authorize]
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync()

@@ -39,6 +39,31 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Bearer JWT"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+
     //options.ExampleFilters(); //Ativa os exemplos nas respostas
 });
 
@@ -87,12 +112,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
 
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
-
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
-
 
 builder.Logging.ClearProviders();
 

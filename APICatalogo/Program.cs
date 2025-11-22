@@ -9,12 +9,14 @@ using APICatalogo.Repository;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,18 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions
         .ReferenceHandler = ReferenceHandler.IgnoreCycles)
     .AddNewtonsoftJson();
+
+var origensComAcessoPermitido = "_origensComAcessoPermitido";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: origensComAcessoPermitido,
+                      policy =>
+                      {
+                          policy.AllowAnyOrigin();
+                      });
+});
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -110,6 +124,18 @@ builder.Services.AddAuthorization(options =>
                                        c.Value.Equals("moises")) ||
                                        context.User.IsInRole("SuperAdmin"));
     });
+});
+
+builder.Services.AddRateLimiter(rateLimiterOptions =>
+{
+    rateLimiterOptions.AddFixedWindowLimiter("fixed", options =>
+    {
+        options.PermitLimit = 3;
+        options.Window = TimeSpan.FromSeconds(10);
+        //options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 0;
+    });
+    rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 builder.Services.AddTransient<IMeuServico, MeuServico>();
@@ -216,6 +242,13 @@ if (app.Environment.IsDevelopment())
 //});
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseRateLimiter();
+
+app.UseCors(origensComAcessoPermitido);
+
 app.UseAuthentication();
 app.UseAuthorization();
 

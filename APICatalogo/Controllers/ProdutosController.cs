@@ -13,8 +13,8 @@ using X.PagedList;
 
 namespace APICatalogo.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ProdutosController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -68,7 +68,7 @@ namespace APICatalogo.Controllers
 
         //api/produtos  
         [HttpGet]
-        [Authorize(Policy = "UserOnly")]
+        //[Authorize(Policy = "UserOnly", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
         {
             var produtos = await _unitOfWork.ProdutoRepository.GetAllAsync();

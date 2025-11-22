@@ -1,7 +1,6 @@
 ﻿using APICatalogo.DTOs;
 using APICatalogo.Models;
 using APICatalogo.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,16 +16,19 @@ namespace APICatalogo.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(ITokenService tokenService,
                               UserManager<ApplicationUser> userManager,
                               RoleManager<IdentityRole> roleManager,
-                              IConfiguration configuration)
+                              IConfiguration configuration,
+                              ILogger<AuthController> logger)
         {
             _tokenService = tokenService;
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -121,7 +123,7 @@ namespace APICatalogo.Controllers
 
             var user = await _userManager.FindByNameAsync(username);
 
-            if(user is null || user.RefreshToken != refreshToken 
+            if (user is null || user.RefreshToken != refreshToken
                             || user.RefreshTokenExpiryTime <= DateTime.Now)
                 return BadRequest("Invalid access token or refresh token");
 
@@ -153,6 +155,55 @@ namespace APICatalogo.Controllers
             await _userManager.UpdateAsync(user);
 
             return NoContent();
+        }
+
+        [HttpPost]
+        [Route("CreateRole")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
+            {
+                var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation(1, "Roles Added");
+                    return Ok(new Response { Status = "Success", Message = $"Role {roleName} created successfully!" });
+                }
+                else
+                {
+                    _logger.LogInformation(2, "Error");
+                    return BadRequest(new Response { Status = "Error", Message = "Role creation failed." });
+                }
+            }
+            return BadRequest(new Response { Status = "Error", Message = "Role already exists!" });
+
+        }
+
+        [HttpPost]
+        [Route("AddUserToRole")]
+        public async Task<IActionResult> AddUserToRole(string email, string roleName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user != null)
+            {
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation(1, $"User {user.Email} added to the {roleName} role");
+                    return Ok(new Response { Status = "Success", Message = $"User {email} added to the {roleName} role successfully!" });
+                }
+                else
+                {
+                    _logger.LogInformation(1, $"Error: Unable to add user {user.Email} to the {roleName} role");
+
+                    return BadRequest(new Response { Status = "Error", Message = $"Error: Unable to add user {user.Email} to the {roleName} role" });
+                }
+            }
+
+            return BadRequest(new Response { Status = "Error", Message = "User not found!" });
         }
     }
 }

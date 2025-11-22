@@ -111,7 +111,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("SuperAdminOnly", policy => 
+                    policy.RequireRole("Admin").RequireClaim("id", "moises"));
+    options.AddPolicy("UserOnly",policy => policy.RequireRole("User"));
+    options.AddPolicy("ExclusiveOnly", policy => policy.RequireAssertion(context =>
+                    context.User.HasClaim(c => c.Type.Equals("id") &&
+                                               c.Value.Equals("moises")) ||
+                                               context.User.IsInRole("SuperAdmin")));
+});
 
 builder.Logging.ClearProviders();
 

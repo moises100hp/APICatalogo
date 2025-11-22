@@ -178,6 +178,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "AdminOnly")]
         public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
             var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == id);

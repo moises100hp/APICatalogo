@@ -98,6 +98,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "moises"));
+    //      Politica, Perfil, Regra
+
+    options.AddPolicy("ExclusivePoliceOnly", policy =>
+    {
+        policy.RequireAssertion(context => context.User.HasClaim(c => c.Type.Equals("id") &&
+                                       c.Value.Equals("moises")) ||
+                                       context.User.IsInRole("SuperAdmin"));
+    });
+});
+
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 builder.Services.AddScoped<ApiLoggingFilter>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
@@ -114,9 +128,9 @@ builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("SuperAdminOnly", policy => 
+    options.AddPolicy("SuperAdminOnly", policy =>
                     policy.RequireRole("Admin").RequireClaim("id", "moises"));
-    options.AddPolicy("UserOnly",policy => policy.RequireRole("User"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
     options.AddPolicy("ExclusiveOnly", policy => policy.RequireAssertion(context =>
                     context.User.HasClaim(c => c.Type.Equals("id") &&
                                                c.Value.Equals("moises")) ||

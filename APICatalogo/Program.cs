@@ -4,6 +4,7 @@ using APICatalogo.Extensions;
 using APICatalogo.Filters;
 using APICatalogo.Logging;
 using APICatalogo.Models;
+using APICatalogo.RateLimitOptions;
 using APICatalogo.Repositories;
 using APICatalogo.Repository;
 using APICatalogo.Services;
@@ -132,11 +133,34 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
     {
         options.PermitLimit = 3;
         options.Window = TimeSpan.FromSeconds(10);
-        //options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = 0;
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 2;
     });
     rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
+
+var myOptions = new MyRateLimitOptions();
+
+builder.Configuration.GetSection(MyRateLimitOptions.MyRateLimit)
+    .Bind(myOptions);
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+                                  partitionKey: httpContext.User.Identity?.Name ??
+                                                httpContext.Request.Headers.Host.ToString(),
+                                  factory: partition => new FixedWindowRateLimiterOptions
+                                  {
+                                      AutoReplenishment = myOptions.AutoReplenishment,
+                                      PermitLimit = myOptions.PermitLimit,
+                                      QueueLimit =  myOptions.QueueLimit, 
+                                      Window = TimeSpan.FromSeconds(myOptions.Window)
+                                  });
+    });
+});
+
 
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 builder.Services.AddScoped<ApiLoggingFilter>();

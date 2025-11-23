@@ -14,7 +14,7 @@ namespace APICatalogo.Controllers
 {
     [ApiController]
     [EnableRateLimiting("fixed")]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

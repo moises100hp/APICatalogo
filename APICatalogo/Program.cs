@@ -1,3 +1,4 @@
+using APICatalogo;
 using APICatalogo.Context;
 using APICatalogo.DTOs.Mappings;
 using APICatalogo.Extensions;
@@ -8,6 +9,7 @@ using APICatalogo.RateLimitOptions;
 using APICatalogo.Repositories;
 using APICatalogo.Repository;
 using APICatalogo.Services;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
@@ -48,11 +50,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Minha API",
-        Version = "v1"
-    });
+    //options.SwaggerDoc("v1", new OpenApiInfo
+    //{
+    //    Title = "Minha API",
+    //    Version = "v1"
+    //});
+
+    options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
@@ -161,6 +165,20 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+builder.Services.AddApiVersioning(o =>
+{
+    o.DefaultApiVersion = new ApiVersion(1, 0);
+    o.AssumeDefaultVersionWhenUnspecified = false;
+    o.ReportApiVersions = true;
+    o.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader());
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = false;
+});
+
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 builder.Services.AddScoped<ApiLoggingFilter>();
@@ -247,7 +265,18 @@ app.UseSerilogRequestLogging();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        var descriptions = app.DescribeApiVersions();
+
+        // Cria um endpoint para cada versão descoberta
+        foreach (var description in descriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant());
+        }
+    });
     app.ConfigureExceptionHandler();
 }
 

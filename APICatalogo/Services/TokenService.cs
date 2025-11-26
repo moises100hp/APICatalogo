@@ -6,8 +6,11 @@ using System.Text;
 
 namespace APICatalogo.Services
 {
+    /// <inheritdoc/>
     public class TokenService : ITokenService
     {
+
+        /// <inheritdoc/>
         public JwtSecurityToken GenerateAccessToken(IEnumerable<Claim> claims, IConfiguration _config)
         {
             var key = _config.GetSection("JWT").GetValue<string>("SecretKey") ??
@@ -36,6 +39,7 @@ namespace APICatalogo.Services
             return token;
         }
 
+        /// <inheritdoc/>
         public string GenerateRefreshToken()
         {
             var secureRamdomBytes = new byte[128];
@@ -48,6 +52,7 @@ namespace APICatalogo.Services
             return refreshToken;
         }
 
+        /// <inheritdoc/>
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token, IConfiguration _config)
         {
             var secretKey = _config["JWT:SecretKey"] ?? throw new InvalidOperationException("Invalid key");

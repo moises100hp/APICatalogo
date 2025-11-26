@@ -11,6 +11,8 @@ namespace APICatalogo.Controllers
 {
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [Produces("application/json")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class AuthController : ControllerBase
     {
         private readonly ITokenService _tokenService;
@@ -32,6 +34,12 @@ namespace APICatalogo.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Verifica as credenciais de um usuário
+        /// </summary>
+        /// <param name="model">Um objeto do tipo UsuarioDTO</param>
+        /// <returns>Status 200 e o token para o cliente</returns>
+        /// <remarks>Retorna o Status 200 e o token</remarks>
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
@@ -80,8 +88,15 @@ namespace APICatalogo.Controllers
             return Unauthorized();
         }
 
+        /// <summary>
+        /// Regista um novo usuário
+        /// </summary>
+        /// <param name="model">Um objeto UsuarioDTO</param>
+        /// <returns>Status 200</returns>
         [HttpPost]
         [Route("register")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username!);
@@ -106,6 +121,8 @@ namespace APICatalogo.Controllers
 
         [HttpPost]
         [Route("refresh-token")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> RefreshToken(TokenModel tokenModel)
         {
             if (tokenModel is null)
@@ -148,6 +165,9 @@ namespace APICatalogo.Controllers
         [HttpPost]
         [Route("revoke/{username}")]
         [Authorize(Policy = "ExclusiveOnly")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Revoke(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -164,6 +184,8 @@ namespace APICatalogo.Controllers
         [HttpPost]
         [Route("CreateRole")]
         [Authorize(Policy = "SuperAdminOnly")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateRole(string roleName)
         {
             var roleExists = await _roleManager.RoleExistsAsync(roleName);
@@ -188,6 +210,8 @@ namespace APICatalogo.Controllers
         [HttpPost]
         [Route("AddUserToRole")]
         [Authorize(Policy = "SuperAdminOnly")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
             var user = await _userManager.FindByEmailAsync(email);

@@ -15,6 +15,7 @@ namespace APICatalogo.Controllers
     [ApiController]
     [EnableRateLimiting("fixed")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Produces("application/json")]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -28,7 +29,6 @@ namespace APICatalogo.Controllers
         }
 
         #region Comentado
-
         //[HttpGet("LerArquivoConfiguracao")]
         //public string GetValores()
         //{
@@ -67,9 +67,16 @@ namespace APICatalogo.Controllers
         //}
         #endregion
 
+        /// <summary>
+        /// Obtem uma lista de Categorias
+        /// </summary>
+        /// <returns>Objetos Categoria</returns>
         //[Authorize]
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
+        [DisableRateLimiting]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync()
         {
             _logger.LogInformation(" ============================= GET api/categorias ======================");
@@ -85,7 +92,14 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDTO);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="categoriasParameters"></param>
+        /// <returns></returns>
         [HttpGet("pagination")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync([FromQuery] CategoriasParameters categoriasParameters)
         {
             _logger.LogInformation(" ============================= GET api/categorias/pagination ======================");
@@ -122,7 +136,14 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDTO);
         }
 
+        /// <summary>
+        /// Obter uma categoria pelo seu ID.
+        /// </summary>
+        /// <param name="id">Codigo do produto</param>
+        /// <returns>Um objeto Produto</returns>
         [HttpGet("{id:int}", Name = "ObterCategoria")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CategoriaDTO>> GetAsync(int id)
         {
             _logger.LogInformation($" ============================= GET api/categorias/{id} ======================");
@@ -140,7 +161,24 @@ namespace APICatalogo.Controllers
             return Ok(categoriaDTO);
         }
 
+        /// <summary>
+        /// Incluir uma nova categoria
+        /// </summary>
+        /// <remarks>Exemplo de request: 
+        /// 
+        ///     POST api/categorias
+        ///     {
+        ///         "categoriaIs": 1,
+        ///         "nome": "categoria1",
+        ///         "imagemUrl": "http://teste.net/1;jpg"
+        ///     }
+        /// </remarks>
+        /// <param name="categoriaDTO"></param>
+        /// <returns>O objeto Categoria incluida</returns>
+        /// <remarks>Retorna um objeto Categoria incluido</remarks>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CategoriaDTO>> PostAsync(CategoriaDTO categoriaDTO)
         {
             if (categoriaDTO == null)
@@ -161,6 +199,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPut]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))]
         public async Task<ActionResult<CategoriaDTO>> PutAsync(int id, CategoriaDTO categoriaDTO)
         {
             if (id != categoriaDTO.CategoriaId)
@@ -180,6 +221,8 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         //[Authorize(Roles = "AdminOnly", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {

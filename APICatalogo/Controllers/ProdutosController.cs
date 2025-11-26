@@ -15,6 +15,7 @@ namespace APICatalogo.Controllers
 {
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Produces("application/json")]
     public class ProdutosController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -27,6 +28,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPatch("{id}/UpdatePartial")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ProdutoDTOUpdateResponse>> Patch(int id,
             JsonPatchDocument<ProdutoDTOUpdateRequest> patchProdutoDTO)
         {
@@ -55,6 +59,8 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("produtos/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutosPorCategoriaAsync(int id)
         {
             var produtos = await _unitOfWork.ProdutoRepository.GetProdutosPorCategoriaAsync(id);
@@ -68,6 +74,8 @@ namespace APICatalogo.Controllers
 
         //api/produtos  
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         //[Authorize(Policy = "UserOnly", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
         {
@@ -83,6 +91,8 @@ namespace APICatalogo.Controllers
      
         //api/produtos  
         [HttpGet("pagination")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync([FromQuery] ProdutosParameters produtosParametersDTO)
         {
             var produtos = await _unitOfWork.ProdutoRepository.GetProdutosAsync(produtosParametersDTO);
@@ -122,6 +132,8 @@ namespace APICatalogo.Controllers
 
         //api/produtos/id
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProdutoDTO>> GetAsync([FromQuery] int id)
         {
             var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
@@ -137,6 +149,9 @@ namespace APICatalogo.Controllers
 
         //produtos
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ProdutoDTO>> PostAsync(ProdutoDTO produtoDTO)
         {
             if (produtoDTO is null)
@@ -160,6 +175,9 @@ namespace APICatalogo.Controllers
 
         //produtos/id
         [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ProdutoDTO>> PutAsync(int id, ProdutoDTO produtoDTO)
         {
             if (id != produtoDTO.ProdutoId)
@@ -180,6 +198,9 @@ namespace APICatalogo.Controllers
 
         //produtos/id
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProdutoDTO>> DeleteAsync(int id)
         {
             var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.ProdutoId == id);

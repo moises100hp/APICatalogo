@@ -20,7 +20,7 @@ namespace APICatalogo.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public ProdutosController(IUnitOfWork unitOfWork, 
+        public ProdutosController(IUnitOfWork unitOfWork,
                                   IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -34,7 +34,7 @@ namespace APICatalogo.Controllers
         public async Task<ActionResult<ProdutoDTOUpdateResponse>> Patch(int id,
             JsonPatchDocument<ProdutoDTOUpdateRequest> patchProdutoDTO)
         {
-            if(patchProdutoDTO is null || id <= 0)
+            if (patchProdutoDTO is null || id <= 0)
                 return BadRequest();
 
             var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
@@ -76,19 +76,27 @@ namespace APICatalogo.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         //[Authorize(Policy = "UserOnly", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
         {
-            var produtos = await _unitOfWork.ProdutoRepository.GetAllAsync();
+            try
+            {
+                var produtos = await _unitOfWork.ProdutoRepository.GetAllAsync();
 
-            if (produtos is null)
-                return NotFound();
+                if (produtos is null)
+                    return NotFound();
 
-            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+                var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
-            return Ok(produtosDTO);
+                return Ok(produtosDTO);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
-     
+
         //api/produtos  
         [HttpGet("pagination")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -161,7 +169,7 @@ namespace APICatalogo.Controllers
 
             var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == produto.CategoriaId);
 
-            if(categoria is null)
+            if (categoria is null)
                 return NotFound("Categoria não encontrada!");
 
             var novoProduto = _unitOfWork.ProdutoRepository.Create(produto);
@@ -205,7 +213,7 @@ namespace APICatalogo.Controllers
         {
             var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
 
-            if( produto is null)
+            if (produto is null)
                 return NotFound("Produto não encontrado");
 
             var produtoDeletado = _unitOfWork.ProdutoRepository.Delete(produto);

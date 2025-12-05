@@ -18,7 +18,7 @@ namespace APICatalogo.Repository
         {
             var categorias = await GetAllAsync();
 
-            var categoriasOrdenadas = categorias.OrderBy(c => c.CategoriaId).AsQueryable();
+            var categoriasOrdenadas = categorias.OrderBy(c => c.Id).AsQueryable();
 
             //var resultado = PagedList<Categoria>.ToPagedList(categoriasOrdenadas,
             //    categoriasParameters.PageNumber,

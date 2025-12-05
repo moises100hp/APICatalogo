@@ -24,7 +24,7 @@ namespace APICatalogo.Repositories
         {
             var produtos = await GetAllAsync();
 
-            var produtosOrdenados = produtos.OrderBy(p => p.ProdutoId).AsQueryable();
+            var produtosOrdenados = produtos.OrderBy(p => p.Id).AsQueryable();
 
             //var resultado = PagedList<Produto>.ToPagedList(produtosOrdenados,
             //    produtosParameters.PageNumber,

@@ -148,7 +148,7 @@ namespace APICatalogo.Controllers
         {
             _logger.LogInformation($" ============================= GET api/categorias/{id} ======================");
 
-            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == id);
+            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.Id == id);
 
             if (categoria is null)
             {
@@ -226,7 +226,7 @@ namespace APICatalogo.Controllers
         //[Authorize(Roles = "AdminOnly", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
-            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == id);
+            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.Id == id);
 
             if (categoria is null)
             {

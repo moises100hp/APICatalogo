@@ -9,7 +9,7 @@ namespace APICatalogo.Models
     public class Produto : IValidatableObject
     {
         [Key]
-        public int ProdutoId { get; set; }
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "O nome é obrigatório")]
         [StringLength(20, ErrorMessage = "O nome deve ter entre 5 e 20 caracteres",

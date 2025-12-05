@@ -12,7 +12,7 @@ namespace APICatalogo.DTOs.Mappings
 
             return new CategoriaDTO()
             {
-                CategoriaId = categoria.CategoriaId,
+                CategoriaId = categoria.Id,
                 Nome = categoria.Nome,
                 ImagemUrl = categoria.ImagemUrl
             };
@@ -25,7 +25,7 @@ namespace APICatalogo.DTOs.Mappings
 
             return new Categoria()
             {
-                CategoriaId = categoriaDTO.CategoriaId,
+                Id = categoriaDTO.CategoriaId,
                 Nome = categoriaDTO.Nome,
                 ImagemUrl = categoriaDTO.ImagemUrl
             };
@@ -38,7 +38,7 @@ namespace APICatalogo.DTOs.Mappings
 
             return categorias.Select(c => new CategoriaDTO()
             {
-                CategoriaId = c.CategoriaId,
+                CategoriaId = c.Id,
                 Nome = c.Nome,
                 ImagemUrl = c.ImagemUrl
             }).ToList();

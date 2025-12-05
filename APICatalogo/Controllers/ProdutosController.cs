@@ -37,7 +37,7 @@ namespace APICatalogo.Controllers
             if (patchProdutoDTO is null || id <= 0)
                 return BadRequest();
 
-            var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
+            var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.Id == id);
 
             if (produto is null)
                 return NotFound("Produto não encontrado!");
@@ -144,7 +144,7 @@ namespace APICatalogo.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProdutoDTO>> GetAsync([FromQuery] int id)
         {
-            var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
+            var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.Id == id);
 
             if (produto == null)
                 return NotFound("Produto não encontrado!");
@@ -167,7 +167,7 @@ namespace APICatalogo.Controllers
 
             var produto = _mapper.Map<Produto>(produtoDTO);
 
-            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == produto.CategoriaId);
+            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.Id == produto.CategoriaId);
 
             if (categoria is null)
                 return NotFound("Categoria não encontrada!");
@@ -211,7 +211,7 @@ namespace APICatalogo.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProdutoDTO>> DeleteAsync(int id)
         {
-            var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
+            var produto = await _unitOfWork.ProdutoRepository.GetAsync(p => p.Id == id);
 
             if (produto is null)
                 return NotFound("Produto não encontrado");
